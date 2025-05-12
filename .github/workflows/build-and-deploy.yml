@@ -1,6 +1,5 @@
 name: CI
 
-# 1
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push events but only for the master branch
@@ -11,14 +10,13 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Image version'
+        description: 'Image Version'
         required: true
-#2
+
 env:
   REGISTRY: "registry.digitalocean.com/ngmh"
   IMAGE_NAME: "scheds-backend"
 
-#3
 jobs:
   build_and_push:
     runs-on: ubuntu-latest
@@ -65,6 +63,7 @@ jobs:
             docker rm $(echo $IMAGE_NAME)
             # Run a new container from a new image
             docker run -d \
+            -p 3000:3000 \
             --restart always \
             --name $(echo $IMAGE_NAME) \
             $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7)
