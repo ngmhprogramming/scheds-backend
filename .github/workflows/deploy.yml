@@ -37,6 +37,6 @@ jobs:
             # Remove old container
             docker rm $(echo $IMAGE_NAME)
             # Build new container
-            docker-compose build --force-rm --no-cache --comporess
+            docker compose -f docker-compose.yml build --force-rm --no-cache --compress
             # Run a new container from a new image
-            docker-compose up -d
+            docker compose up -d
