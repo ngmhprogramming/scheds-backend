@@ -26,12 +26,21 @@ async function signUpNewUser(email, password) {
 }
 
 app.post("/signup", upload.none(), async (req, res) => {
-	console.log(req.body.email);
-	console.log(req.body.password);
-	const supabaseResponse = await signUpNewUser(req.body.email, req.body.password);
-	console.log(supabaseResponse);
-	// some erorr handling here...
-	res.send(supabaseResponse);
+	console.log("Signing up", req.body.email, req.body.password);
+	const { data, error } = await signUpNewUser(req.body.email, req.body.password);
+	if (error == null) {
+		res.send(data);
+	}
+	if (error.code == "validation_failed") {
+		res.send("Could not validate Email.");
+	}
+	if (error.code == "weak_password") {
+		res.send("Password was too weak, ensure it has at least 6 characters.");
+	}
+	if (error.code == "user_already_exists") {
+		res.send("A user with that email already exists.");
+	}
+	res.send(error);
 });
 
 app.listen(port, () => {
