@@ -33,7 +33,7 @@ jobs:
             cd scheds-backend
             git pull
             # Stop running container
-            docker stop $(echo $IMAGE_NAME)
+            docker compose down -v
             # Remove old container
             docker rm $(echo $IMAGE_NAME)
             # Build new container
