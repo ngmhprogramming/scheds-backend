@@ -8,10 +8,10 @@ env.config();
 
 const app = express();
 const upload = multer();
-const port = 3000;
+const port = process.env.SERVER_PORT;
 
 app.get("/", (req, res) => {
-	res.send("Hello Lol!");
+	res.redirect("https://scheds.ngmunhin.com/");
 	return;
 });
 
