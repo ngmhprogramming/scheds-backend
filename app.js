@@ -25,6 +25,15 @@ async function signUpNewUser(email, password) {
 	return { data, error };
 }
 
+async function signInWithEmail(email, password) {
+	const { data, error } = await supabase.auth.signInWithPassword({
+		email: email,
+		password: password,
+	});
+	console.log({ data, error });
+	return { data, error };
+}
+
 app.post("/signup", upload.none(), async (req, res) => {
 	console.log("Signing up", req.body.email, req.body.password);
 	const { data, error } = await signUpNewUser(req.body.email, req.body.password);
@@ -41,6 +50,18 @@ app.post("/signup", upload.none(), async (req, res) => {
 		res.send("A user with that email already exists.");
 	}
 	res.send(error);
+});
+
+app.post("/login", upload.none(), async (req, res) => {
+	console.log("Signing in", req.body.email, req.body.password);
+	const { data, error } = await signInWithEmail(req.body.email, req.body.password);
+	if (error == null) {
+		res.send(data);
+	}
+	if (error == "invalid_credentials") {
+		res.send("Invalid login credentials.");
+	}
+	res.send({ data, error });
 });
 
 app.listen(port, () => {
