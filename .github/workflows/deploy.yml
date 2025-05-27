@@ -34,8 +34,6 @@ jobs:
             git pull
             # Stop running container
             docker compose down -v
-            # Remove old container
-            docker rm $(echo $IMAGE_NAME)
             # Build new container
             docker compose -f docker-compose.yml build --force-rm --no-cache --compress
             # Run a new container from a new image
