@@ -67,17 +67,21 @@ app.post("/signup", upload.none(), async (req, res) => {
 });
 
 app.post("/login", upload.none(), async (req, res) => {
-	console.log("Signing in", req.body.email, req.body.password);
 	const { data, error } = await database.signInWithEmail(req.body.email, req.body.password);
 	if (error == null) {
-		res.send(data);
+		res.cookie("token", data.session.access_token, {
+			httpOnly: true,
+			secure: process.env.SERVER_ENV === "prod",
+			sameSite: (process.env.SERVER_ENV === "prod" ? "none" : "lax"),
+		});
+		res.send({ data: "username" });
 		return;
 	}
 	if (error.code == "invalid_credentials") {
-		res.send("Invalid login credentials.");
+		res.send({ error: "Invalid login credentials." });
 		return;
 	}
-	res.send({ data, error });
+	res.send({ error: error });
 	return;
 });
 

@@ -19,7 +19,6 @@ export async function signInWithEmail(email, password) {
 		email: email,
 		password: password,
 	});
-	console.log({ data, error });
 	return { data, error };
 }
 
