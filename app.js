@@ -24,25 +24,45 @@ app.get("/", (req, res) => {
 });
 
 app.post("/signup", upload.none(), async (req, res) => {
-	console.log("Signing up", req.body.email, req.body.password);
-	const { data, error } = await database.signUpNewUser(req.body.email, req.body.password);
+	if (!("username" in req.body)) {
+		res.send({ error: "No username specified!" });
+		return;
+	}
+	if (!("email" in req.body)) {
+		res.send({ error: "No email specified!" });
+		return;
+	}
+	if (!("password" in req.body)) {
+		res.send({ error: "No password specified!" });
+		return;
+	}
+	const username = req.body.username;
+	const email = req.body.email;
+	const password = req.body.password;
+
+	const { data, error } = await database.signUpNewUser(username, email, password);
 	if (error == null) {
-		res.send(data);
+		res.cookie("token", data.session.access_token, {
+			httpOnly: true,
+			secure: process.env.SERVER_ENV === "prod",
+			sameSite: (process.env.SERVER_ENV === "prod" ? "none" : "lax"),
+		});
+		res.send({ data: username });
 		return;
 	}
 	if (error.code == "validation_failed") {
-		res.send("Could not validate Email.");
+		res.send({ error: "Could not validate Email." });
 		return;
 	}
 	if (error.code == "weak_password") {
-		res.send("Password was too weak, ensure it has at least 6 characters.");
+		res.send({ error: "Password was too weak, ensure it has at least 6 characters." });
 		return;
 	}
 	if (error.code == "user_already_exists") {
-		res.send("A user with that email already exists.");
+		res.send({ error: "A user with that email already exists." });
 		return;
 	}
-	res.send(error);
+	res.send({ error: error });
 	return;
 });
 
