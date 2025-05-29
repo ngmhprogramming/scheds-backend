@@ -1,6 +1,7 @@
 import express from "express";
 import env from "dotenv";
 import multer from "multer";
+import cors from "cors";
 
 import * as database from "./database.js";
 
@@ -9,6 +10,13 @@ env.config();
 const app = express();
 const upload = multer();
 const port = process.env.SERVER_PORT;
+const frontendURL = process.env.FRONTEND_URL;
+
+app.use(cors({
+	origin: frontendURL,
+	methods: ["GET", "POST", "PUT", "DELETE"],
+	credentials: true,
+}));
 
 app.get("/", (req, res) => {
 	res.redirect("https://scheds.ngmunhin.com/");
