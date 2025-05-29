@@ -81,6 +81,16 @@ app.post("/login", upload.none(), async (req, res) => {
 	return;
 });
 
+app.post("/logout", upload.none(), async (req, res) => {
+	res.cookie("token", "", {
+		httpOnly: true,
+		secure: process.env.SERVER_ENV === "prod",
+		sameSite: (process.env.SERVER_ENV === "prod" ? "none" : "lax"),
+		expires: new Date(0),
+	});
+	res.send({ data: "Successfully logged out!" });
+});
+
 app.post("/test", upload.none(), async (req, res) => {
 	const { data, error } = await database.updateTest(req.body.access_token, req.body.username);
 	if (error == null) {
