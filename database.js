@@ -48,11 +48,24 @@ export async function signUpNewUser(username, email, password) {
 }
 
 export async function signInWithEmail(email, password) {
-	const { data, error } = await supabase.auth.signInWithPassword({
+	const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
 		email: email,
 		password: password,
 	});
-	return { data, error };
+	if (loginError) {
+		if (loginError.code == "invalid_credentials") {
+			return { error: "Invalid login credentials." };
+		}
+		return { error: loginError };
+	}
+	const token = loginData.session.access_token;
+	const uuid = loginData.user.id;
+	const { data: profileData, error: profileError } = await supabase
+		.from("profiles")
+		.select("*")
+		.eq("user_id", uuid)
+		.single();
+	return { data: { profileData: profileData, token: token }, error: profileError };
 }
 
 export async function getUser(access_token) {
