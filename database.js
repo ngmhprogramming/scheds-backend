@@ -6,12 +6,11 @@ env.config();
 
 const supabase = createClient(process.env.DATABASE_URL, process.env.DATABASE_KEY);
 
-export async function signUpNewUser(email, password) {
+export async function signUpNewUser(username, email, password) {
 	const { data, error } = await supabase.auth.signUp({
 		email: email,
 		password: password,
 	});
-	console.log({ data, error });
 	return { data, error };
 }
 
@@ -20,7 +19,6 @@ export async function signInWithEmail(email, password) {
 		email: email,
 		password: password,
 	});
-	console.log({ data, error });
 	return { data, error };
 }
 
