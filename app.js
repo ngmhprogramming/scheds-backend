@@ -120,12 +120,29 @@ app.post("/schedule/create-event", upload.none(), async (req, res) => {
 	if (!("description" in req.body)) {
 		req.body.description = "";
 	}
-	s
+
 	const access_token = req.cookies.token;
 
 	const { data, error } = await database.createEvent(access_token, req.body);
 	if (error == null) {
 		res.send({ data: "Success" });
+		return;
+	}
+	res.send({ error: error });
+	return;
+});
+
+app.get("/schedule/events", async (req, res) => {
+	// make sure user is logged in
+	if (!("token" in req.cookies)) {
+		res.send({ error: "User not logged in!" });
+		return;
+	}
+	const access_token = req.cookies.token;
+
+	const { data, error } = await database.getEvents(access_token);
+	if (error == null) {
+		res.send({ data: data });
 		return;
 	}
 	res.send({ error: error });
