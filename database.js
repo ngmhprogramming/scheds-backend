@@ -84,6 +84,32 @@ export async function updateTest(access_token, username) {
 		.upsert({
 			user: user.id,
 			username: username,
-		}, { onConflict: "user" })
+		}, { onConflict: "user" });
+	return { data, error };
+}
+
+export async function createEvent(access_token, eventData) {
+	const { data: userData, error: userError } = await getUser(access_token);
+	if (userError != null) {
+		return { data: userData, error: userError };
+	}
+	const user = userData.user;
+	eventData.user = user.id;
+	const { data, error } = await supabase
+		.from("events")
+		.insert(eventData);
+	return { data, error };
+}
+
+export async function getEvents(access_token) {
+	const { data: userData, error: userError } = await getUser(access_token);
+	if (userError != null) {
+		return { data: userData, error: userError };
+	}
+	const user = userData.user;
+	const { data, error } = await supabase
+		.from("events")
+		.select("*")
+		.eq("user", user.id);
 	return { data, error };
 }

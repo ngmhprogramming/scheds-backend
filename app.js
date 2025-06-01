@@ -2,6 +2,7 @@ import express from "express";
 import env from "dotenv";
 import multer from "multer";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 import * as database from "./database.js";
 
@@ -17,6 +18,8 @@ app.use(cors({
 	methods: ["GET", "POST", "PUT", "DELETE"],
 	credentials: true,
 }));
+
+app.use(cookieParser());
 
 app.get("/", (req, res) => {
 	res.redirect("https://scheds.ngmunhin.com/");
@@ -91,6 +94,58 @@ app.post("/test", upload.none(), async (req, res) => {
 		return;
 	}
 	res.send({ data, error });
+	return;
+});
+
+app.post("/schedule/create-event", upload.none(), async (req, res) => {
+	// make sure user is logged in
+	if (!("token" in req.cookies)) {
+		res.send({ error: "User not logged in!" });
+		return;
+	}
+
+	// validate request parameters
+	if (!("title" in req.body)) {
+		res.send({ error: "No title specified!" });
+		return;
+	}
+	if (!("start" in req.body)) {
+		res.send({ error: "No start time specified!" });
+		return;
+	}
+	if (!("end" in req.body)) {
+		res.send({ error: "No end time specified!" });
+		return;
+	}
+	if (!("description" in req.body)) {
+		req.body.description = "";
+	}
+
+	const access_token = req.cookies.token;
+
+	const { data, error } = await database.createEvent(access_token, req.body);
+	if (error == null) {
+		res.send({ data: "Success" });
+		return;
+	}
+	res.send({ error: error });
+	return;
+});
+
+app.get("/schedule/events", async (req, res) => {
+	// make sure user is logged in
+	if (!("token" in req.cookies)) {
+		res.send({ error: "User not logged in!" });
+		return;
+	}
+	const access_token = req.cookies.token;
+
+	const { data, error } = await database.getEvents(access_token);
+	if (error == null) {
+		res.send({ data: data });
+		return;
+	}
+	res.send({ error: error });
 	return;
 });
 
