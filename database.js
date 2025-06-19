@@ -47,6 +47,57 @@ export async function signUpNewUser(username, email, password) {
 	return { data: { profileData: profileData, token: token }, error: profileError };
 }
 
+export async function createGroup(groupName) {
+	//create new group
+	return await supabase
+		.from("groups")
+		.insert({
+			name: groupName 
+		});
+}
+
+export async function addToGroup(groupId, userId) {
+	// add to the group
+	return await supabase
+	    .from("userGroups")
+		.insert({
+			group_id: groupId,
+			user_id: userId
+		});
+}
+
+export async function removeFromGroup(groupId, userId) {
+	//remove from the group
+	return await supabase
+	    .from("userGroups")
+		.delete()
+		.eq("group_id", groupId)
+		.eq("user_id", userId);
+}
+
+export async function renameGroup(groupId, groupName) {
+	return await supabase
+		.from("groups")
+		.update({ name: groupName })
+		.eq("id", groupId);
+}
+
+export async function getGroups(userId) {
+	//retrieve groups user is a part of
+	return await supabase
+	    .from("userGroups")
+		.select("group_id")
+		.eq("user_id", userId);
+}
+
+export async function getUsers(groupId) {
+	//retrieve members of a group
+	return await supabase
+	    .from("userGroups")
+		.select("user_id")
+		.eq("group_id", groupId);
+}
+
 export async function signInWithEmail(email, password) {
 	const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
 		email: email,
