@@ -258,16 +258,16 @@ app.post("/group/add-member", upload.none(), async (req, res) => {
 		res.send({ error: "No group specified!" });
 		return;
 	}
-	if (!("userId" in req.body)) {
-		res.send({ error: "No user specified!" });
+	if (!("username" in req.body)) {
+		res.send({ error: "No username specified!" });
 		return;
 	}
 
 	const access_token = req.cookies.token;
 	const group_id = req.body.groupId;
-	const user_id = req.body.userId;
+	const username = req.body.username;
 
-	const { data, error } = await database.addToGroup(access_token, group_id, user_id);
+	const { data, error } = await database.addToGroup(access_token, group_id, username);
 	if (error == null) {
 		res.send({ data: "Success" });
 		return;
