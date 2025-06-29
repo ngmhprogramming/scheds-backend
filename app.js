@@ -307,6 +307,58 @@ app.post("/group/remove-member", upload.none(), async (req, res) => {
 	return;
 });
 
+app.post("/group/schedule-event", upload.none(), async (req, res) => {
+	// make sure user is logged in
+	if (!("token" in req.cookies)) {
+		res.send({ error: "User not logged in!" });
+		return;
+	}
+	// validate request parameters
+	if (!("groupId" in req.body)) {
+		res.send({ error: "No group ID specified!" });
+		return;
+	}
+
+	const access_token = req.cookies.token;
+
+	// Get users in the group
+	const { data: groupData, error: groupError } = await database.getGroups(access_token);
+	if (groupError != null) {
+		res.send({ error: "Could not check if user is in group!" });
+		return;
+	}
+	// Check if user is in the group
+	const userInGroup = groupData.some(group => group.group_id === req.body.groupId);
+	if (!userInGroup) {
+		res.send({ error: "User is not in group!" });
+		return;
+	}
+
+	// Get list of users in the group
+	const { data: groupUserData, error: groupUserError } = await database.getMembers(access_token, req.body.groupId);
+	if (groupUserError != null) {
+		res.send({ error: "Could not retrieve members of group!" });
+		return;
+	}
+	// Get events for users in the group
+	const userEvents = await Promise.all(
+		groupUserData.map(async user => {
+			const { data: userEventsData, error: userEventsError } = await database.getEventsByUserId(user.user_id);
+			// if (userEventsError != null) {
+			// 	res.send({ error: "Could not retrieve events for a user!" });
+			// 	return;
+			// }
+			return { username: user.user_id, events: userEventsData };
+		})
+	);
+
+	const inputData = req.body;
+	inputData.users = userEvents;
+	const data = scheduler.findFreeSlots(inputData);
+	res.send({ data: data });
+	return;
+});
+
 app.post("/group/test-schedule-event", upload.none(), async (req, res) => {
 	const users = [
 		{

@@ -101,6 +101,14 @@ export async function createEvent(access_token, eventData) {
 	return { data, error };
 }
 
+export async function getEventsByUserId(user_id) {
+	const { data, error } = await supabase
+		.from("events")
+		.select("*")
+		.eq("user", user_id);
+	return { data, error };
+}
+
 export async function getEvents(access_token) {
 	const { data: userData, error: userError } = await getUser(access_token);
 	if (userError != null) {
@@ -124,7 +132,7 @@ export async function createGroup(access_token, groupName) {
 	const { data: groupData, error: groupError } = await supabase
 		.from("groups")
 		.insert({
-			name: groupName, 
+			name: groupName,
 		})
 		.select();
 
@@ -134,7 +142,7 @@ export async function createGroup(access_token, groupName) {
 	const groupId = groupData[0].group_id;
 
 	return await supabase
-	    .from("user-groups")
+		.from("user-groups")
 		.insert({
 			group_id: groupId,
 			user_id: user.id,
@@ -162,10 +170,10 @@ export async function addToGroup(access_token, groupId, userId) {
 	if (isAdmin == null || isAdmin.admin != true) {
 		return { error: "You do not have permission to add users to this group." };
 	}
-	
+
 	// add to the group
 	return await supabase
-	    .from("user-groups")
+		.from("user-groups")
 		.insert({
 			group_id: groupId,
 			user_id: userId
@@ -178,7 +186,7 @@ export async function removeFromGroup(access_token, groupId, userId) {
 		return { data: userData, error: userError };
 	}
 	const user = userData.user;
-	
+
 	//check if user has admin access
 	const { data: isAdmin, error: adminCheckError } = await supabase.
 		from("user-groups")
@@ -195,7 +203,7 @@ export async function removeFromGroup(access_token, groupId, userId) {
 
 	//remove from the group
 	return await supabase
-	    .from("user-groups")
+		.from("user-groups")
 		.delete()
 		.eq("group_id", groupId)
 		.eq("user_id", userId);
@@ -218,11 +226,11 @@ export async function getGroups(access_token) {
 	if (userError != null) {
 		return { data: userData, error: userError };
 	}
-	
+
 	const user = userData.user;
 	//retrieve groups user is a part of
 	return await supabase
-	    .from("user-groups")
+		.from("user-groups")
 		.select("group_id")
 		.eq("user_id", user.id);
 }
@@ -237,7 +245,7 @@ export async function getMembers(access_token, groupId) {
 	//check if user is member of the group
 	const { data: isMember, error: memberCheckError } = await supabase
 		.from("user-groups")
-		.select("user_id", {count: 'exact'})
+		.select("user_id", { count: 'exact' })
 		.eq("group_id", groupId)
 		.eq("user_id", user.id);
 	if (isMember == 0) {
@@ -246,7 +254,7 @@ export async function getMembers(access_token, groupId) {
 
 	//retrieve members of a group
 	return await supabase
-	    .from("user-groups")
+		.from("user-groups")
 		.select("user_id")
 		.eq("group_id", groupId);
 }
