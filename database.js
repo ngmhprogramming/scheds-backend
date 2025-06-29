@@ -73,6 +73,15 @@ export async function getUser(access_token) {
 	return { data, error };
 }
 
+export async function getUserProfile(user_id) {
+	const { data, error } = await supabase
+		.from("profiles")
+		.select("*")
+		.eq("user_id", user_id)
+		.single();
+	return { data, error };
+}
+
 export async function updateTest(access_token, username) {
 	const { data: userData, error: userError } = await getUser(access_token);
 	if (userError != null) {
@@ -98,6 +107,14 @@ export async function createEvent(access_token, eventData) {
 	const { data, error } = await supabase
 		.from("events")
 		.insert(eventData);
+	return { data, error };
+}
+
+export async function getEventsByUserId(user_id) {
+	const { data, error } = await supabase
+		.from("events")
+		.select("*")
+		.eq("user", user_id);
 	return { data, error };
 }
 
