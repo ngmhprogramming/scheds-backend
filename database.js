@@ -47,57 +47,6 @@ export async function signUpNewUser(username, email, password) {
 	return { data: { profileData: profileData, token: token }, error: profileError };
 }
 
-export async function createGroup(groupName) {
-	//create new group
-	return await supabase
-		.from("groups")
-		.insert({
-			name: groupName 
-		});
-}
-
-export async function addToGroup(groupId, userId) {
-	// add to the group
-	return await supabase
-	    .from("userGroups")
-		.insert({
-			group_id: groupId,
-			user_id: userId
-		});
-}
-
-export async function removeFromGroup(groupId, userId) {
-	//remove from the group
-	return await supabase
-	    .from("userGroups")
-		.delete()
-		.eq("group_id", groupId)
-		.eq("user_id", userId);
-}
-
-export async function renameGroup(groupId, groupName) {
-	return await supabase
-		.from("groups")
-		.update({ name: groupName })
-		.eq("id", groupId);
-}
-
-export async function getGroups(userId) {
-	//retrieve groups user is a part of
-	return await supabase
-	    .from("userGroups")
-		.select("group_id")
-		.eq("user_id", userId);
-}
-
-export async function getUsers(groupId) {
-	//retrieve members of a group
-	return await supabase
-	    .from("userGroups")
-		.select("user_id")
-		.eq("group_id", groupId);
-}
-
 export async function signInWithEmail(email, password) {
 	const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
 		email: email,
@@ -163,4 +112,142 @@ export async function getEvents(access_token) {
 		.select("*")
 		.eq("user", user.id);
 	return { data, error };
+}
+
+export async function createGroup(access_token, groupName) {
+	const { data: userData, error: userError } = await getUser(access_token);
+	if (userError != null) {
+		return { data: userData, error: userError };
+	}
+	const user = userData.user;
+	//create new group
+	const { data: groupData, error: groupError } = await supabase
+		.from("groups")
+		.insert({
+			name: groupName, 
+		})
+		.select();
+
+	if (groupError != null) {
+		return { data: groupData, error: groupError };
+	}
+	console.log(groupData);
+	const groupId = groupData[0].group_id;
+
+	return await supabase
+	    .from("user-groups")
+		.insert({
+			group_id: groupId,
+			user_id: user.id,
+			admin: true,
+		});
+}
+
+export async function addToGroup(access_token, groupId, userId) {
+	const { data: userData, error: userError } = await getUser(access_token);
+	if (userError != null) {
+		return { data: userData, error: userError };
+	}
+	const user = userData.user;
+
+	//check if user has admin access
+	const { data: isAdmin, error: adminCheckError } = await supabase.
+		from("user-groups")
+		.select("admin")
+		.eq("user_id", user.id)
+		.eq("group_id", groupId);
+	if (adminCheckError != null) {
+		return { error: error };
+	}
+	console.log(isAdmin);
+	if (isAdmin.length == 0 || isAdmin[0].admin != true) {
+		return { error: "You do not have permission to add users to this group." };
+	}
+	
+	// add to the group
+	return await supabase
+	    .from("user-groups")
+		.insert({
+			group_id: groupId,
+			user_id: userId
+		});
+}
+
+export async function removeFromGroup(access_token, groupId, userId) {
+	const { data: userData, error: userError } = await getUser(access_token);
+	if (userError != null) {
+		return { data: userData, error: userError };
+	}
+	const user = userData.user;
+	
+	//check if user has admin access
+	const { data: isAdmin, error: adminCheckError } = await supabase.
+		from("user-groups")
+		.select("admin")
+		.eq("user_id", user.id)
+		.eq("group_id", groupId);
+	if (adminCheckError != null) {
+		return { error: error };
+	}
+	if (isAdmin.length == 0 || isAdmin[0].admin != true) {
+		return { error: "You do not have permission to remove users from this group." };
+	}
+
+	//remove from the group
+	return await supabase
+	    .from("user-groups")
+		.delete()
+		.eq("group_id", groupId)
+		.eq("user_id", userId);
+}
+
+export async function renameGroup(access_token, groupId, groupName) {
+	const { data: userData, error: userError } = await getUser(access_token);
+	if (userError != null) {
+		return { data: userData, error: userError };
+	}
+	const user = userData.user;
+	return await supabase
+		.from("groups")
+		.update({ name: groupName })
+		.eq("group_id", groupId);
+}
+
+export async function getGroups(access_token) {
+	const { data: userData, error: userError } = await getUser(access_token);
+	if (userError != null) {
+		return { data: userData, error: userError };
+	}
+	
+	const user = userData.user;
+	console.log(user);
+	//retrieve groups user is a part of
+	return await supabase
+	    .from("user-groups")
+		.select("group_id")
+		.eq("user_id", user.id);
+}
+
+export async function getMembers(access_token, groupId) {
+	const { data: userData, error: userError } = await getUser(access_token);
+	if (userError != null) {
+		return { data: userData, error: userError };
+	}
+	const user = userData.user;
+
+	//check if user is member of the group
+	const { data: isMember, error: memberCheckError } = await supabase
+		.from("user-groups")
+		.select("user_id", {count: 'exact'})
+		.eq("group_id", groupId)
+		.eq("user_id", user.id);
+	if (isMember == 0) {
+		return { error: "User is not a member of this group." };
+	}
+
+	//retrieve members of a group
+	return await supabase
+	    .from("user-groups")
+		.select("user_id")
+		.eq("group_id", groupId);
 }

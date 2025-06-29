@@ -149,6 +149,163 @@ app.get("/schedule/events", async (req, res) => {
 	return;
 });
 
+app.get("/schedule/group/get-groups", async (req, res) => {
+	// make sure user is logged in
+	if (!("token" in req.cookies)) {
+		res.send({ error: "User not logged in!" });
+		return;
+	}
+	const access_token = req.cookies.token;
+
+	const { data, error } = await database.getGroups(access_token);
+	if (error == null) {
+		res.send({ data: data });
+		return;
+	}
+	res.send({ error: error });
+	return;
+});
+
+app.post("/schedule/group/get-members", upload.none(), async (req, res) => {
+	// make sure user is logged in
+	if (!("token" in req.cookies)) {
+		res.send({ error: "User not logged in!" });
+		return;
+	}
+	const access_token = req.cookies.token;
+
+	// validate request parameters
+	if (!("groupId" in req.body)) {
+		res.send({ error: "No group specified!" });
+		return;
+	}
+
+	const group_id = req.body.groupId;
+
+	const { data, error } = await database.getMembers(access_token, group_id);
+	if (error == null) {
+		res.send({ data: data });
+		return;
+	}
+	res.send({ error: error });
+	return;
+});
+
+app.post("/schedule/group/create", upload.none(), async (req, res) => {
+	// make sure user is logged in
+	if (!("token" in req.cookies)) {
+		res.send({ error: "User not logged in!" });
+		return;
+	}
+
+	// validate request parameters
+	if (!("name" in req.body)) {
+		res.send({ error: "No group name specified!" });
+		return;
+	}
+
+	const access_token = req.cookies.token;
+	const group_name = req.body.name;
+
+	const { data, error } = await database.createGroup(access_token, group_name);
+	if (error == null) {
+		res.send({ data: "Success" });
+		return;
+	}
+	res.send({ error: error });
+	return;
+})
+
+app.post("/schedule/group/rename", upload.none(), async (req, res) => {
+	// make sure user is logged in
+	if (!("token" in req.cookies)) {
+		res.send({ error: "User not logged in!" });
+		return;
+	}
+
+	// validate request parameters
+	if (!("groupId" in req.body)) {
+		res.send({ error: "No group specified!" });
+		return;
+	}
+	if (!("newName" in req.body)) {
+		res.send({ error: "No new group name specified!" });
+		return;
+	}
+
+	const access_token = req.cookies.token;
+	const group_id = req.body.groupId;
+	const new_name = req.body.newName;
+
+	const { data, error } = await database.renameGroup(access_token, group_id, new_name);
+	if (error == null) {
+		res.send({ data: "Success" });
+		return;
+	}
+	res.send({ error: error });
+	return;
+})
+
+app.post("/schedule/group/add-member", upload.none(), async (req, res) => {
+	// make sure user is logged in
+	if (!("token" in req.cookies)) {
+		res.send({ error: "User not logged in!" });
+		return;
+	}
+
+	// validate request parameters
+	if (!("groupId" in req.body)) {
+		res.send({ error: "No group specified!" });
+		return;
+	}
+	if (!("userId" in req.body)) {
+		res.send({ error: "No user specified!" });
+		return;
+	}
+
+	const access_token = req.cookies.token;
+	const group_id = req.body.groupId;
+	const user_id = req.body.userId;
+
+	const { data, error } = await database.addToGroup(access_token, group_id, user_id);
+	if (error == null) {
+		res.send({ data: "Success" });
+		return;
+	}
+	res.send({ error: error });
+	return;
+})
+
+app.post("/schedule/group/remove-member", upload.none(), async (req, res) => {
+	// make sure user is logged in
+	if (!("token" in req.cookies)) {
+		res.send({ error: "User not logged in!" });
+		return;
+	}
+
+	// validate request parameters
+	if (!("groupId" in req.body)) {
+		res.send({ error: "No group specified!" });
+		return;
+	}
+	if (!("userId" in req.body)) {
+		res.send({ error: "No user specified!" });
+		return;
+	}
+
+	const access_token = req.cookies.token;
+	const group_id = req.body.groupId;
+	const user_id = req.body.userId;
+
+	const { data, error } = await database.removeFromGroup(access_token, group_id, user_id);
+	if (error == null) {
+		res.send({ data: "Success" });
+		return;
+	}
+	res.send({ error: error });
+	return;
+})
+
 app.listen(port, () => {
 	console.log(`Listening on port ${port}`);
 });
