@@ -1,0 +1,1178 @@
+{
+	"info": {
+		"_postman_id": "7d4e22e3-8583-40de-9e9a-bc5378b5877d",
+		"name": "scheds-tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "7408512",
+		"_collection_link": "https://interstellar-robot-380393.postman.co/workspace/scheds~e4f66253-61f0-4471-aaf6-66cf582c011f/collection/7408512-7d4e22e3-8583-40de-9e9a-bc5378b5877d?action=share&source=collection_link&creator=7408512"
+	},
+	"item": [
+		{
+			"name": "Homepage",
+			"item": [
+				{
+					"name": "Homepage",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}",
+							"host": [
+								"{{base_url}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Signup",
+			"item": [
+				{
+					"name": "Valid Signup",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const valid_email = pm.variables.replaceIn('{{$randomEmail}}');\r",
+									"pm.environment.set(\"valid_email\", valid_email);\r",
+									"\r",
+									"const valid_username = pm.variables.replaceIn('{{$randomUserName}}');\r",
+									"pm.environment.set(\"valid_username\", valid_username);\r",
+									"\r",
+									"const valid_password = pm.variables.replaceIn('{{$randomPassword}}');\r",
+									"pm.environment.set(\"valid_password\", valid_password);\r",
+									"\r",
+									"console.log(\"valid_email set to \" + valid_email);\r",
+									"console.log(\"valid_username set to \" + valid_username);\r",
+									"console.log(\"valid_password set to \" + valid_password);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "{{valid_email}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{valid_password}}",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "{{valid_username}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/signup",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid Email Signup",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const temp_email = pm.variables.replaceIn('{{$randomEmail}}');\r",
+									"pm.environment.set(\"temp_email\", temp_email);\r",
+									"\r",
+									"const temp_username = pm.variables.replaceIn('{{$randomUserName}}');\r",
+									"pm.environment.set(\"temp_username\", temp_username);\r",
+									"\r",
+									"const temp_password = pm.variables.replaceIn('{{$randomPassword}}');\r",
+									"pm.environment.set(\"temp_password\", temp_password);\r",
+									"\r",
+									"console.log(\"temp_email set to \" + temp_email);\r",
+									"console.log(\"temp_username set to \" + temp_username);\r",
+									"console.log(\"temp_password set to \" + temp_password);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Invalid email signup error message\", () => {\r",
+									"    const json = pm.response.json();\r",
+									"    pm.expect(json.error).to.eql(\"Could not validate Email.\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "INVALID_EMAIL",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{temp_password}}",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "{{temp_username}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/signup",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid Password Signup Copy",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const temp_email = pm.variables.replaceIn('{{$randomEmail}}');\r",
+									"pm.environment.set(\"temp_email\", temp_email);\r",
+									"\r",
+									"const temp_username = pm.variables.replaceIn('{{$randomUserName}}');\r",
+									"pm.environment.set(\"temp_username\", temp_username);\r",
+									"\r",
+									"const temp_password = pm.variables.replaceIn('{{$randomPassword}}');\r",
+									"pm.environment.set(\"temp_password\", temp_password);\r",
+									"\r",
+									"console.log(\"temp_email set to \" + temp_email);\r",
+									"console.log(\"temp_username set to \" + temp_username);\r",
+									"console.log(\"temp_password set to \" + temp_password);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"\r",
+									"pm.test(\"Invalid password signup error message\", () => {\r",
+									"    const json = pm.response.json();\r",
+									"    pm.expect(json.error).to.eql(\"Password was too weak, ensure it has at least 6 characters.\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "{{temp_email}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "bob",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "{{temp_username}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/signup",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Duplicate Username Signup",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Duplicate username signup error message\", () => {\r",
+									"    const json = pm.response.json();\r",
+									"    pm.expect(json.error).to.eql(\"Username is already taken\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "{{valid_email}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{valid_password}}",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "{{valid_username}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/signup",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Duplicate Email Signup",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const temp_username = pm.variables.replaceIn('{{$randomUserName}}');\r",
+									"pm.environment.set(\"temp_username\", temp_username);\r",
+									"\r",
+									"console.log(\"temp_username set to \" + temp_username);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Duplicate username signup error message\", () => {\r",
+									"    const json = pm.response.json();\r",
+									"    pm.expect(json.error).to.eql(\"A user with that email already exists.\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "{{valid_email}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{valid_password}}",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "{{temp_username}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/signup",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "No Username Signup",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"No username signup error message\", () => {\r",
+									"    const json = pm.response.json();\r",
+									"    pm.expect(json.error).to.eql(\"No username specified!\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "{{valid_email}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{valid_password}}",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "{{valid_username}}",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/signup",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "No Email Signup",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"No email signup error message\", () => {\r",
+									"    const json = pm.response.json();\r",
+									"    pm.expect(json.error).to.eql(\"No email specified!\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "{{valid_email}}",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "password",
+									"value": "{{valid_password}}",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "{{valid_username}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/signup",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "No Password Signup",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"No password signup error message\", () => {\r",
+									"    const json = pm.response.json();\r",
+									"    pm.expect(json.error).to.eql(\"No password specified!\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "{{valid_email}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{valid_password}}",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "username",
+									"value": "{{valid_username}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/signup",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"signup"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Login / Logout",
+			"item": [
+				{
+					"name": "Invalid Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Login should fail\", () => {\r",
+									"    const json = pm.response.json();\r",
+									"    pm.expect(json.error).to.eql(\"Invalid login credentials.\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "{{valid_email}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{$randomPassword}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Valid Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Login has correct username\", () => {\r",
+									"    const json = pm.response.json();\r",
+									"    pm.expect(json.data.username).to.eql(pm.environment.get(\"valid_username\"));\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "{{valid_email}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{valid_password}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Logout was successful\", () => {\r",
+									"    const json = pm.response.json();\r",
+									"    pm.expect(json.data).to.eql(\"Successfully logged out!\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{base_url}}/logout",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Valid Login Again",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Login has correct username\", () => {\r",
+									"    const json = pm.response.json();\r",
+									"    pm.expect(json.data.username).to.eql(pm.environment.get(\"valid_username\"));\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "{{valid_email}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{valid_password}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Create Event",
+			"item": [
+				{
+					"name": "Create Event",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Event creation was succesful\", () => {\r",
+									"    const json = pm.response.json();\r",
+									"    pm.expect(json.data).to.eql(\"Success\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const event_title = pm.variables.replaceIn('{{$randomWords}}');\r",
+									"pm.environment.set(\"event_title\", event_title);\r",
+									"\r",
+									"const event_start = pm.variables.replaceIn('{{$isoTimestamp}}');\r",
+									"pm.environment.set(\"event_start\", event_start);\r",
+									"\r",
+									"const event_end = pm.variables.replaceIn('{{$isoTimestamp}}');\r",
+									"pm.environment.set(\"event_end\", event_end);\r",
+									"\r",
+									"const event_description = pm.variables.replaceIn('{{$randomPhrase}}');\r",
+									"pm.environment.set(\"event_description\", event_description);\r",
+									"\r",
+									"console.log(\"event_title set to \" + event_title);\r",
+									"console.log(\"event_start set to \" + event_start);\r",
+									"console.log(\"event_end set to \" + event_end);\r",
+									"console.log(\"event_description set to \" + event_description);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "{{event_title}}",
+									"type": "text"
+								},
+								{
+									"key": "start",
+									"value": "{{event_start}}",
+									"type": "text"
+								},
+								{
+									"key": "end",
+									"value": "{{event_end}}",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "{{event_description}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/schedule/create-event",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"schedule",
+								"create-event"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "No Title Create Event",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Event Creation fails with no title\", () => {\r",
+									"    const json = pm.response.json();\r",
+									"    pm.expect(json.error).to.eql(\"No title specified!\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "{{event_title}}",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "start",
+									"value": "{{event_start}}",
+									"type": "text"
+								},
+								{
+									"key": "end",
+									"value": "{{event_end}}",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "{{event_description}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/schedule/create-event",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"schedule",
+								"create-event"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "No Start Time Create Event",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Event Creation fails with no start time\", () => {\r",
+									"    const json = pm.response.json();\r",
+									"    pm.expect(json.error).to.eql(\"No start time specified!\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "{{event_title}}",
+									"type": "text"
+								},
+								{
+									"key": "start",
+									"value": "{{event_start}}",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "end",
+									"value": "{{event_end}}",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "{{event_description}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/schedule/create-event",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"schedule",
+								"create-event"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "No End Time Create Event",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Event Creation fails with no end time\", () => {\r",
+									"    const json = pm.response.json();\r",
+									"    pm.expect(json.error).to.eql(\"No end time specified!\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "{{event_title}}",
+									"type": "text"
+								},
+								{
+									"key": "start",
+									"value": "{{event_start}}",
+									"type": "text"
+								},
+								{
+									"key": "end",
+									"value": "{{event_end}}",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "description",
+									"value": "{{event_description}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/schedule/create-event",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"schedule",
+								"create-event"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Events",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Previously created event is found\", () => {\r",
+									"    const json = pm.response.json();\r",
+									"    \r",
+									"    const expectedTitle = pm.environment.get(\"event_title\");\r",
+									"    const expectedStart = new Date(pm.environment.get(\"event_start\"));\r",
+									"    const expectedEnd = new Date(pm.environment.get(\"event_end\"));\r",
+									"    const expectedDescription = pm.environment.get(\"event_description\");\r",
+									"    const match = json.data.find(event =>\r",
+									"        event.title === expectedTitle &&\r",
+									"        new Date(event.start).getTime() === expectedStart.getTime() &&\r",
+									"        new Date(event.end).getTime() === expectedEnd.getTime() &&\r",
+									"        event.description === expectedDescription\r",
+									"    );\r",
+									"    pm.expect(match).to.not.be.undefined;\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{base_url}}/schedule/events",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"schedule",
+								"events"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
