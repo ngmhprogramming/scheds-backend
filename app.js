@@ -149,7 +149,7 @@ app.get("/schedule/events", async (req, res) => {
 	return;
 });
 
-app.get("/schedule/group/get-groups", async (req, res) => {
+app.get("/group/get-groups", async (req, res) => {
 	// make sure user is logged in
 	if (!("token" in req.cookies)) {
 		res.send({ error: "User not logged in!" });
@@ -166,7 +166,7 @@ app.get("/schedule/group/get-groups", async (req, res) => {
 	return;
 });
 
-app.post("/schedule/group/get-members", upload.none(), async (req, res) => {
+app.post("/group/get-members", upload.none(), async (req, res) => {
 	// make sure user is logged in
 	if (!("token" in req.cookies)) {
 		res.send({ error: "User not logged in!" });
@@ -191,7 +191,7 @@ app.post("/schedule/group/get-members", upload.none(), async (req, res) => {
 	return;
 });
 
-app.post("/schedule/group/create", upload.none(), async (req, res) => {
+app.post("/group/create", upload.none(), async (req, res) => {
 	// make sure user is logged in
 	if (!("token" in req.cookies)) {
 		res.send({ error: "User not logged in!" });
@@ -216,7 +216,7 @@ app.post("/schedule/group/create", upload.none(), async (req, res) => {
 	return;
 })
 
-app.post("/schedule/group/rename", upload.none(), async (req, res) => {
+app.post("/group/rename", upload.none(), async (req, res) => {
 	// make sure user is logged in
 	if (!("token" in req.cookies)) {
 		res.send({ error: "User not logged in!" });
@@ -246,7 +246,7 @@ app.post("/schedule/group/rename", upload.none(), async (req, res) => {
 	return;
 })
 
-app.post("/schedule/group/add-member", upload.none(), async (req, res) => {
+app.post("/group/add-member", upload.none(), async (req, res) => {
 	// make sure user is logged in
 	if (!("token" in req.cookies)) {
 		res.send({ error: "User not logged in!" });
@@ -276,7 +276,7 @@ app.post("/schedule/group/add-member", upload.none(), async (req, res) => {
 	return;
 })
 
-app.post("/schedule/group/remove-member", upload.none(), async (req, res) => {
+app.post("/group/remove-member", upload.none(), async (req, res) => {
 	// make sure user is logged in
 	if (!("token" in req.cookies)) {
 		res.send({ error: "User not logged in!" });

@@ -131,7 +131,6 @@ export async function createGroup(access_token, groupName) {
 	if (groupError != null) {
 		return { data: groupData, error: groupError };
 	}
-	console.log(groupData);
 	const groupId = groupData[0].group_id;
 
 	return await supabase
@@ -155,12 +154,12 @@ export async function addToGroup(access_token, groupId, userId) {
 		from("user-groups")
 		.select("admin")
 		.eq("user_id", user.id)
-		.eq("group_id", groupId);
+		.eq("group_id", groupId)
+		.single();
 	if (adminCheckError != null) {
 		return { error: error };
 	}
-	console.log(isAdmin);
-	if (isAdmin.length == 0 || isAdmin[0].admin != true) {
+	if (isAdmin.length == 0 || isAdmin.admin != true) {
 		return { error: "You do not have permission to add users to this group." };
 	}
 	
@@ -185,11 +184,12 @@ export async function removeFromGroup(access_token, groupId, userId) {
 		from("user-groups")
 		.select("admin")
 		.eq("user_id", user.id)
-		.eq("group_id", groupId);
+		.eq("group_id", groupId)
+		.single();
 	if (adminCheckError != null) {
 		return { error: error };
 	}
-	if (isAdmin.length == 0 || isAdmin[0].admin != true) {
+	if (isAdmin.length == 0 || isAdmin.admin != true) {
 		return { error: "You do not have permission to remove users from this group." };
 	}
 
@@ -220,7 +220,6 @@ export async function getGroups(access_token) {
 	}
 	
 	const user = userData.user;
-	console.log(user);
 	//retrieve groups user is a part of
 	return await supabase
 	    .from("user-groups")
