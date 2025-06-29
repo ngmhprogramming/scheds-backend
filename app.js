@@ -318,6 +318,18 @@ app.post("/group/schedule-event", upload.none(), async (req, res) => {
 		res.send({ error: "No group ID specified!" });
 		return;
 	}
+	if (!("searchStart" in req.body)) {
+		res.send({ error: "No search start timestamp specified!" });
+		return;
+	}
+	if (!("searchEnd" in req.body)) {
+		res.send({ error: "No search end timestamp specified!" });
+		return;
+	}
+	if (!("eventLength" in req.body)) {
+		res.send({ error: "No event length specified!" });
+		return;
+	}
 
 	const access_token = req.cookies.token;
 
