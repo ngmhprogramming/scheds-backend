@@ -262,11 +262,9 @@ export async function getGroups(access_token) {
 	const groupData = await Promise.all(
 		userGroups.map(async group => {
 			const groupInfo = await getGroupData(group.group_id);
-			console.log(groupInfo);
 			return groupInfo.data;
 		})
 	);
-	console.log(groupData);
 	return { data: groupData };
 }
 
@@ -297,8 +295,16 @@ export async function getMembers(access_token, groupId) {
 	}
 
 	//retrieve members of a group
-	return await supabase
+	const { data: memberData, error: memberError } = await supabase
 		.from("user-groups")
 		.select("user_id")
 		.eq("group_id", groupId);
+
+	const memberProfileData = await Promise.all(
+		memberData.map(async member => {
+			const memberInfo = await getUserProfile(member.user_id);
+			return memberInfo.data;
+		})
+	);
+	return { data: memberProfileData };
 }
