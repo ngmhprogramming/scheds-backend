@@ -73,6 +73,15 @@ export async function getUser(access_token) {
 	return { data, error };
 }
 
+export async function getUserProfileByUsername(username) {
+	const { data, error } = await supabase
+		.from("profiles")
+		.select("*")
+		.eq("username", username)
+		.single();
+	return { data, error };
+}
+
 export async function getUserProfile(user_id) {
 	const { data, error } = await supabase
 		.from("profiles")
@@ -161,7 +170,7 @@ export async function createGroup(access_token, groupName) {
 
 export async function addToGroup(access_token, groupId, username) {
 	// retrieve details of user being added
-	const { data: addedUserData, error: addedUserError } = await getUserByUsername(username);
+	const { data: addedUserData, error: addedUserError } = await getUserProfileByUsername(username);
 	if (addedUserError != null) {
 		return { error: addedUserError };
 	}
