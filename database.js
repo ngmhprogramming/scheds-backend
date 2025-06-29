@@ -238,10 +238,28 @@ export async function getGroups(access_token) {
 
 	const user = userData.user;
 	//retrieve groups user is a part of
-	return await supabase
+	const { data: userGroups, error: userGroupsError } = await supabase
 		.from("user-groups")
-		.select("group_id")
+		.select("*")
 		.eq("user_id", user.id);
+	const groupData = await Promise.all(
+		userGroups.map(async group => {
+			const groupInfo = await getGroupData(group.group_id);
+			console.log(groupInfo);
+			return groupInfo.data;
+		})
+	);
+	console.log(groupData);
+	return { data: groupData };
+}
+
+export async function getGroupData(group_id) {
+	const { data, error } = await supabase
+		.from("groups")
+		.select("*")
+		.eq("group_id", group_id)
+		.single();
+	return { data, error };
 }
 
 export async function getMembers(access_token, groupId) {
