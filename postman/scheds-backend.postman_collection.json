@@ -1,0 +1,244 @@
+{
+	"info": {
+		"_postman_id": "01d21765-f933-4603-ae59-24c98291e0dc",
+		"name": "scheds-backend",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "7408512",
+		"_collection_link": "https://interstellar-robot-380393.postman.co/workspace/scheds~e4f66253-61f0-4471-aaf6-66cf582c011f/collection/7408512-01d21765-f933-4603-ae59-24c98291e0dc?action=share&source=collection_link&creator=7408512"
+	},
+	"item": [
+		{
+			"name": "Homepage",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}",
+					"host": [
+						"{{base_url}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "email",
+							"value": "e@e.e",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "eeeeee",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/login",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Logout",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "{{base_url}}/logout",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"logout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Signup",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const reqObj = {\r",
+							"    \"method\": \"POST\",\r",
+							"    \"url\": \"{{base_url}}/signup\",\r",
+							"    \"body\": {\r",
+							"        \"mode\": \"formdata\",\r",
+							"        \"formdata\": [\r",
+							"            {\"key\": \"email\", \"value\": pm.variables.replaceIn(\"{{$randomEmail}}\")},\r",
+							"            {\"key\": \"username\", \"value\": pm.variables.replaceIn(\"{{$randomUserName}}\")},\r",
+							"            {\"key\": \"password\", \"value\": pm.variables.replaceIn(\"{{$randomPassword}}\")},\r",
+							"        ],\r",
+							"    },\r",
+							"}\r",
+							"\r",
+							"console.log(reqObj.url);\r",
+							"\r",
+							"pm.sendRequest(reqObj, (err, res) => {\r",
+							"    console.log(res);\r",
+							"    pm.test(\"Status code is 500\", () => {\r",
+							"        pm.expect(res.code).to.eql(500);\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"// Removed incorrect status code test\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "email",
+							"value": "testt@test.tester",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "password",
+							"value": "testtest",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "username",
+							"value": "test",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/signup",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"signup"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Event",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "title",
+							"value": "eeeeeeeeeeeeeee",
+							"type": "text"
+						},
+						{
+							"key": "start",
+							"value": "2025-06-01T00:56:00.000Z",
+							"type": "text"
+						},
+						{
+							"key": "end",
+							"value": "2025-06-01T12:56:00.000Z",
+							"type": "text"
+						},
+						{
+							"key": "description",
+							"value": "eeeeeeeeeeeeeeeeee",
+							"type": "text",
+							"disabled": true
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/schedule/create-event",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"schedule",
+						"create-event"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Events",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "{{base_url}}/schedule/events",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"schedule",
+						"events"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
