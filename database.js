@@ -73,6 +73,15 @@ export async function getUser(access_token) {
 	return { data, error };
 }
 
+export async function getUserProfileByUsername(username) {
+	const { data, error } = await supabase
+		.from("profiles")
+		.select("*")
+		.eq("username", username)
+		.single();
+	return { data, error };
+}
+
 export async function getUserProfile(user_id) {
 	const { data, error } = await supabase
 		.from("profiles")
@@ -159,7 +168,15 @@ export async function createGroup(access_token, groupName) {
 		});
 }
 
-export async function addToGroup(access_token, groupId, userId) {
+export async function addToGroup(access_token, groupId, username) {
+	// retrieve details of user being added
+	const { data: addedUserData, error: addedUserError } = await getUserProfileByUsername(username);
+	if (addedUserError != null) {
+		return { error: addedUserError };
+	}
+	const addedUser = addedUserData;
+
+	// retrieve details of user adding
 	const { data: userData, error: userError } = await getUser(access_token);
 	if (userError != null) {
 		return { data: userData, error: userError };
@@ -183,9 +200,9 @@ export async function addToGroup(access_token, groupId, userId) {
 	// add to the group
 	return await supabase
 		.from("user-groups")
-		.insert({
+		.upsert({
 			group_id: groupId,
-			user_id: userId
+			user_id: addedUser.user_id,
 		});
 }
 
