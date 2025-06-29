@@ -155,11 +155,11 @@ export async function addToGroup(access_token, groupId, userId) {
 		.select("admin")
 		.eq("user_id", user.id)
 		.eq("group_id", groupId)
-		.single();
+		.maybeSingle();
 	if (adminCheckError != null) {
 		return { error: error };
 	}
-	if (isAdmin.length == 0 || isAdmin.admin != true) {
+	if (isAdmin == null || isAdmin.admin != true) {
 		return { error: "You do not have permission to add users to this group." };
 	}
 	
@@ -185,11 +185,11 @@ export async function removeFromGroup(access_token, groupId, userId) {
 		.select("admin")
 		.eq("user_id", user.id)
 		.eq("group_id", groupId)
-		.single();
+		.maybeSingle();
 	if (adminCheckError != null) {
 		return { error: error };
 	}
-	if (isAdmin.length == 0 || isAdmin.admin != true) {
+	if (isAdmin == null || isAdmin.admin != true) {
 		return { error: "You do not have permission to remove users from this group." };
 	}
 
