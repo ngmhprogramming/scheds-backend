@@ -5,6 +5,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 
 import * as database from "./database.js";
+import * as scheduler from "./scheduler.js";
 
 env.config();
 
@@ -304,7 +305,43 @@ app.post("/group/remove-member", upload.none(), async (req, res) => {
 	}
 	res.send({ error: error });
 	return;
-})
+});
+
+app.post("/group/test-schedule-event", upload.none(), async (req, res) => {
+	const users = [
+		{
+			username: 'alice',
+			events: [
+				{ start: '2025-07-01T02:00:00Z', end: '2025-07-01T03:00:00Z' },
+			]
+		},
+		{
+			username: 'bob',
+			events: [
+				{ start: '2025-07-01T01:00:00Z', end: '2025-07-01T02:30:00Z' },
+			]
+		},
+		{
+			username: 'carol',
+			events: [
+				{ start: '2025-07-01T04:00:00Z', end: '2025-07-01T05:00:00Z' },
+			]
+		}
+	];
+	const result = scheduler.findFreeSlots({
+		users,
+		searchStart: new Date('2025-07-01T00:00:00Z'),
+		searchEnd: new Date('2025-07-01T06:00:00Z'),
+		eventLength: 120,
+		startHourRestriction: 0,
+		endHourRestriction: 24,
+		stepMinutes: 30,
+		maxResults: 10,
+	});
+	console.log(result);
+	res.send({ data: result });
+	return;
+});
 
 app.listen(port, () => {
 	console.log(`Listening on port ${port}`);
