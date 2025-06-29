@@ -30,24 +30,12 @@ export function findFreeSlots({
 	stepMinutes = 30,
 	maxResults = 10,
 }) {
-	console.log({
-		users,
-		searchStart,
-		searchEnd,
-		eventLength,
-		startHourRestriction,
-		endHourRestriction,
-		stepMinutes,
-		maxResults,
-	});
-
 	const slots = [];
 	const stepMs = stepMinutes * 60 * 1000;
 	const durationMs = eventLength * 60 * 1000;
 
 	const searchStartDate = new Date(searchStart);
 	const searchEndDate = new Date(searchEnd);
-	console.log(searchStartDate, searchEndDate);
 
 	// Try all possible starting times starting from searchStart
 	let slotStart = new Date(searchStartDate);
@@ -75,8 +63,6 @@ export function findFreeSlots({
 				return slotEnd <= eventStart || slotStart >= eventEnd;
 			});
 		}).map(user => user.username);
-
-		console.log(slotStart, slotEnd, availableUsers);
 
 		// Add to candidate slots if at least one user is free
 		if (availableUsers.length > 0) {

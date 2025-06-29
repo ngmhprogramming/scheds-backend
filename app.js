@@ -344,14 +344,25 @@ app.post("/group/schedule-event", upload.none(), async (req, res) => {
 	const userEvents = await Promise.all(
 		groupUserData.map(async user => {
 			const { data: userEventsData, error: userEventsError } = await database.getEventsByUserId(user.user_id);
-			// if (userEventsError != null) {
-			// 	res.send({ error: "Could not retrieve events for a user!" });
-			// 	return;
-			// }
-			return { username: user.user_id, events: userEventsData };
+			if (userEventsError != null) {
+				return { error: "Could not retrieve events for a user!" };
+			}
+
+			// Get username
+			const { data: usernameData, error: usernameError } = await database.getUserProfile(user.user_id);
+			return { username: usernameData.username, events: userEventsData };
 		})
 	);
 
+	// Check if retrieval errored out for any user
+	for (const userEvent of userEvents) {
+		if (userEvent.error != null) {
+			res.send(userEvent);
+			return;
+		}
+	}
+
+	// Call scheduler with event list
 	const inputData = req.body;
 	inputData.users = userEvents;
 	const data = scheduler.findFreeSlots(inputData);
