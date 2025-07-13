@@ -308,3 +308,30 @@ export async function getMembers(access_token, groupId) {
 	);
 	return { data: memberProfileData };
 }
+
+export async function updateProfile(access_token, form) {
+	const { data: userData, error: userError } = await getUser(access_token);
+	if (userError != null) {
+		return { data: userData, error: userError };
+	}
+
+	const { data: updatedUserData, error: updatedUserError } = await supabase.auth
+		.updateUser({
+			email: form.email,
+			password: form.password,
+		});
+
+	const { data: updatedProfileData, error: updatedProfileError } = await supabase
+		.from("profiles")
+		.update({
+			username: form.username,
+			full_name: form.full_name,
+			pfp_url: form.pfp_url,
+			bio: form.bio,
+		});
+
+	if (updatedUserError || updatedProfileError) {
+		return { error: updatedUserError || updatedProfileError };
+	}
+	return { error: null };
+}

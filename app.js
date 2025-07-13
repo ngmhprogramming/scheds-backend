@@ -418,6 +418,36 @@ app.post("/group/test-schedule-event", upload.none(), async (req, res) => {
 	return;
 });
 
+app.post("/profile/update", upload.none(), async (req, res) => {
+	// make sure user is logged in
+	if (!("token" in req.cookies)) {
+		res.send({ error: "User not logged in!" });
+		return;
+	}
+
+	// validate request parameters
+	if (!("username" in req.body) ||
+	    !("full_name" in req.body) ||
+		!("pfp_url" in req.body) ||
+	    !("email" in req.body) ||
+		!("password" in req.body) ||
+	    !("bio" in req.body)
+	) {
+		res.send({ error: "Erroneous form submitted" });
+		return;
+	}
+
+	const access_token = req.cookies.token;
+
+	const { data, error } = await database.updateProfile(access_token, req.body);
+	if (error == null) {
+		res.send({ data: "Success" });
+		return;
+	}
+	res.send({ error: error });
+	return;
+});
+
 app.listen(port, () => {
 	console.log(`Listening on port ${port}`);
 });
