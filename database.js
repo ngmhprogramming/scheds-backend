@@ -308,3 +308,75 @@ export async function getMembers(access_token, groupId) {
 	);
 	return { data: memberProfileData };
 }
+
+export async function updateProfile(access_token, username, full_name, pfp_url, bio) {
+	const { data: userData, error: userError } = await getUser(access_token);
+	if (userError != null) {
+		return { error: "Error getting user" };
+	}
+
+	var profileData, profileError;
+	
+	var { data: profileData, error: profileError } = (username == "") ? { data: profileData, error: profileError } : 
+	await supabase
+		.from("profiles")
+		.update({
+			username: username,
+		})
+		.eq("user_id", userData.user.id);
+	
+	var { data: profileData, error: profileError } = (full_name == "") ? { data: profileData, error: profileError } : 
+	await supabase
+		.from("profiles")
+		.update({
+			full_name: full_name,
+		})
+		.eq("user_id", userData.user.id);
+	
+	var { data: profileData, error: profileError } = (pfp_url == "") ? { data: profileData, error: profileError } : 
+	await supabase
+		.from("profiles")
+		.update({
+			pfp_url: pfp_url,
+		})
+		.eq("user_id", userData.user.id);
+	
+	var { data: profileData, error: profileError } = (bio == "") ? { data: profileData, error: profileError } : 
+	await supabase
+		.from("profiles")
+		.update({
+			bio: bio,
+		})
+		.eq("user_id", userData.user.id);
+
+	if (profileError != null) {
+		console.log(profileError);
+	}
+
+	return { data: profileData, error: profileError == null ? null : "Error Updating Profile" };
+}
+
+export async function updateLogin(access_token, email, password) {
+	const { data: userData, error: userError } = await getUser(access_token);
+	if (userError != null) {
+		return { error: "Error getting user" };
+	}
+
+	var loginData, loginError;
+
+	var { data: loginData, error: loginError } = (email == "") ? { data: loginData, error: loginError} : 
+	await supabase.auth.updateUser({
+		email: email,
+	});
+
+	var { data: loginData, error: loginError } = (password == "") ? { data: loginData, error: loginError} : 
+	await supabase.auth.updateUser({
+		password: password,
+	});
+
+	if (loginError != null) {
+		console.log(loginError);
+	}
+
+	return { data: loginData, error: loginError == null ? null : "Error Updating Login: " + loginError.code };
+}

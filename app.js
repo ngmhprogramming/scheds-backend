@@ -418,6 +418,77 @@ app.post("/group/test-schedule-event", upload.none(), async (req, res) => {
 	return;
 });
 
+app.post("/profile/update/profile", upload.none(), async (req, res) => {
+	// make sure user is logged in
+	if (!("token" in req.cookies)) {
+		res.send({ error: "User not logged in!" });
+		return;
+	}
+
+	// validate request parameters
+	if (!("username" in req.body) ||
+	    !("full_name" in req.body) ||
+		!("pfp_url" in req.body) ||
+	    !("bio" in req.body)
+	) {
+		res.send({ error: "Erroneous form submitted" });
+		return;
+	}
+
+	const access_token = req.cookies.token;
+	const username = req.body.username;
+	const full_name = req.body.full_name;
+	const pfp_url = req.body.pfp_url;
+	const bio = req.body.bio;
+
+	const { data, error } = await database.updateProfile(access_token, username, full_name, pfp_url, bio);
+	if (error == null) {
+		res.send({ data: "Success" });
+		return;
+	}
+	res.send({ error: error });
+	return;
+});
+
+app.post("/profile/update/login", upload.none(), async (req, res) => {
+	// make sure user is logged in
+	if (!("token" in req.cookies)) {
+		res.send({ error: "User not logged in!" });
+		return;
+	}
+
+	// validate request parameters
+	if (!("email" in req.body) ||
+	    !("password" in req.body) 
+	) {
+		res.send({ error: "Erroneous form submitted" });
+		return;
+	}
+
+	const access_token = req.cookies.token;
+	const email = req.body.email;
+	const password = req.body.password;
+
+	const { data, error } = await database.updateLogin(access_token, email, password);
+	if (error == null) {
+		res.send({ data: "Success" });
+		return;
+	}
+	res.send({ error: error });
+	return;
+});
+
+app.post("/profile/get", upload.none(), async (req, res) => {
+	// make sure user is logged in
+	if (!("token" in req.cookies)) {
+		res.send({ error: "User not logged in!" });
+		return;
+	}
+
+	res.send(await database.getUserProfile(access_token));
+	return;
+});
+
 app.listen(port, () => {
 	console.log(`Listening on port ${port}`);
 });
