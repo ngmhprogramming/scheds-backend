@@ -378,5 +378,5 @@ export async function updateLogin(access_token, email, password) {
 		console.log(loginError);
 	}
 
-	return { data: loginData, error: loginError == null ? null : "Error Updating Login" };
+	return { data: loginData, error: loginError == null ? null : "Error Updating Login: " + loginError.code };
 }
