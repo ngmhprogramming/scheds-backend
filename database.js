@@ -119,6 +119,45 @@ export async function createEvent(access_token, eventData) {
 	return { data, error };
 }
 
+
+export async function createEvents(access_token, eventsData) {
+	const { data: userData, error: userError } = await getUser(access_token);
+	if (userError != null) {
+		return { data: userData, error: userError };
+	}
+	const user = userData.user;
+	eventsData.map(async eventData => {
+		eventData.user = user.id;
+
+		// TODO: make this a database constraint instead of performing an extra query
+		const { data: existing, error: existingError } = await supabase
+			.from("events")
+			.select("*")
+			.eq("user", user.id)
+			.eq("title", eventData.title)
+			.eq("start", eventData.start)
+			.eq("end", eventData.end)
+			.eq("description", eventData.description)
+			.limit(1);
+
+		if (existingError) {
+			return { error: "Database Error" };
+		}
+
+		// insert only if event is not already inserted
+		if (existing.length === 0) {
+			const { data, error } = await supabase
+				.from("events")
+				.insert(eventData);
+			if (error) {
+				return { error };
+			}
+		}
+	}
+	);
+	return { data: "Successfully uploaded events!" };
+}
+
 export async function getEventsByUserId(user_id) {
 	const { data, error } = await supabase
 		.from("events")
@@ -309,6 +348,49 @@ export async function getMembers(access_token, groupId) {
 	return { data: memberProfileData };
 }
 
+export async function getAllEventsOfGroupMembers(access_token, groupId) {
+	const { data: userData, error: userError } = await getUser(access_token);
+	if (userError != null) {
+		return { data: userData, error: userError };
+	}
+	const user = userData.user;
+
+	// check if user is member of the group
+	const { data: isMember, error: memberCheckError } = await supabase
+		.from("user-groups")
+		.select("user_id", { count: 'exact' })
+		.eq("group_id", groupId)
+		.eq("user_id", user.id);
+	if (isMember == 0) {
+		return { error: "User is not a member of this group." };
+	}
+
+	// retrieve members of a group
+	const { data: memberData, error: memberError } = await supabase
+		.from("user-groups")
+		.select("user_id")
+		.eq("group_id", groupId);
+
+	// retrieve all events associated with each member
+	const memberEventData = (await Promise.all(
+		memberData.map(async member => {
+
+			const memberInfo = await getUserProfile(member.user_id);
+			const username = memberInfo.data.username;
+
+			const memberEvents = await supabase
+				.from("events")
+				.select("*")
+				.eq("user", member.user_id);
+			return memberEvents.data.map(event => ({
+				...event,
+				title: `${username}: ${event.title}`,
+			}));
+		})
+	)).flat();
+	return { data: memberEventData };
+}
+
 export async function updateProfile(access_token, username, full_name, pfp_url, bio) {
 	const { data: userData, error: userError } = await getUser(access_token);
 	if (userError != null) {
@@ -316,38 +398,38 @@ export async function updateProfile(access_token, username, full_name, pfp_url, 
 	}
 
 	var profileData, profileError;
-	
-	var { data: profileData, error: profileError } = (username == "") ? { data: profileData, error: profileError } : 
-	await supabase
-		.from("profiles")
-		.update({
-			username: username,
-		})
-		.eq("user_id", userData.user.id);
-	
-	var { data: profileData, error: profileError } = (full_name == "") ? { data: profileData, error: profileError } : 
-	await supabase
-		.from("profiles")
-		.update({
-			full_name: full_name,
-		})
-		.eq("user_id", userData.user.id);
-	
-	var { data: profileData, error: profileError } = (pfp_url == "") ? { data: profileData, error: profileError } : 
-	await supabase
-		.from("profiles")
-		.update({
-			pfp_url: pfp_url,
-		})
-		.eq("user_id", userData.user.id);
-	
-	var { data: profileData, error: profileError } = (bio == "") ? { data: profileData, error: profileError } : 
-	await supabase
-		.from("profiles")
-		.update({
-			bio: bio,
-		})
-		.eq("user_id", userData.user.id);
+
+	var { data: profileData, error: profileError } = (username == "") ? { data: profileData, error: profileError } :
+		await supabase
+			.from("profiles")
+			.update({
+				username: username,
+			})
+			.eq("user_id", userData.user.id);
+
+	var { data: profileData, error: profileError } = (full_name == "") ? { data: profileData, error: profileError } :
+		await supabase
+			.from("profiles")
+			.update({
+				full_name: full_name,
+			})
+			.eq("user_id", userData.user.id);
+
+	var { data: profileData, error: profileError } = (pfp_url == "") ? { data: profileData, error: profileError } :
+		await supabase
+			.from("profiles")
+			.update({
+				pfp_url: pfp_url,
+			})
+			.eq("user_id", userData.user.id);
+
+	var { data: profileData, error: profileError } = (bio == "") ? { data: profileData, error: profileError } :
+		await supabase
+			.from("profiles")
+			.update({
+				bio: bio,
+			})
+			.eq("user_id", userData.user.id);
 
 	if (profileError != null) {
 		console.log(profileError);
@@ -364,15 +446,15 @@ export async function updateLogin(access_token, email, password) {
 
 	var loginData, loginError;
 
-	var { data: loginData, error: loginError } = (email == "") ? { data: loginData, error: loginError} : 
-	await supabase.auth.updateUser({
-		email: email,
-	});
+	var { data: loginData, error: loginError } = (email == "") ? { data: loginData, error: loginError } :
+		await supabase.auth.updateUser({
+			email: email,
+		});
 
-	var { data: loginData, error: loginError } = (password == "") ? { data: loginData, error: loginError} : 
-	await supabase.auth.updateUser({
-		password: password,
-	});
+	var { data: loginData, error: loginError } = (password == "") ? { data: loginData, error: loginError } :
+		await supabase.auth.updateUser({
+			password: password,
+		});
 
 	if (loginError != null) {
 		console.log(loginError);

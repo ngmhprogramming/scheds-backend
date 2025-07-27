@@ -133,6 +133,29 @@ app.post("/schedule/create-event", upload.none(), async (req, res) => {
 	return;
 });
 
+app.post("/schedule/create-events", upload.none(), async (req, res) => {
+	// make sure user is logged in
+	if (!("token" in req.cookies)) {
+		res.send({ error: "User not logged in!" });
+		return;
+	}
+
+	// validate request parameters
+	if (!("events" in req.body)) {
+		res.send({ error: "No events specified!" });
+		return;
+	}
+	const access_token = req.cookies.token;
+	const events = JSON.parse(req.body.events);
+	const { data, error } = await database.createEvents(access_token, events);
+	if (error == null) {
+		res.send({ data: "Success" });
+		return;
+	}
+	res.send({ error: error });
+	return;
+});
+
 app.get("/schedule/events", async (req, res) => {
 	// make sure user is logged in
 	if (!("token" in req.cookies)) {
@@ -184,6 +207,31 @@ app.post("/group/get-members", upload.none(), async (req, res) => {
 	const group_id = req.body.groupId;
 
 	const { data, error } = await database.getMembers(access_token, group_id);
+	if (error == null) {
+		res.send({ data: data });
+		return;
+	}
+	res.send({ error: error });
+	return;
+});
+
+app.post("/group/get-member-events", upload.none(), async (req, res) => {
+	// make sure user is logged in
+	if (!("token" in req.cookies)) {
+		res.send({ error: "User not logged in!" });
+		return;
+	}
+	const access_token = req.cookies.token;
+
+	// validate request parameters
+	if (!("groupId" in req.body)) {
+		res.send({ error: "No group specified!" });
+		return;
+	}
+
+	const group_id = req.body.groupId;
+
+	const { data, error } = await database.getAllEventsOfGroupMembers(access_token, group_id);
 	if (error == null) {
 		res.send({ data: data });
 		return;
@@ -427,9 +475,9 @@ app.post("/profile/update/profile", upload.none(), async (req, res) => {
 
 	// validate request parameters
 	if (!("username" in req.body) ||
-	    !("full_name" in req.body) ||
+		!("full_name" in req.body) ||
 		!("pfp_url" in req.body) ||
-	    !("bio" in req.body)
+		!("bio" in req.body)
 	) {
 		res.send({ error: "Erroneous form submitted" });
 		return;
@@ -459,7 +507,7 @@ app.post("/profile/update/login", upload.none(), async (req, res) => {
 
 	// validate request parameters
 	if (!("email" in req.body) ||
-	    !("password" in req.body) 
+		!("password" in req.body)
 	) {
 		res.send({ error: "Erroneous form submitted" });
 		return;
