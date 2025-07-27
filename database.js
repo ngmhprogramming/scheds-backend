@@ -407,6 +407,39 @@ export async function acceptNotif(access_token, notif_id) {
 		return { data: userData, error: userError };
 	}
 
+	const { data: notifData, error: notifError } = await supabase
+		.from("notifs")
+		.select("*")
+		.eq("notif_id", notif_id)
+		.single();
+	if (notifError) {
+		return { data: null, error: notifError };
+	}
+
+	if (notifData.notif_type == "group invite") {
+		const { data: acceptData, error: acceptError} = await supabase
+			.from("user-groups")
+			.upsert({
+				group_id: notifData.group_id,
+				user_id: userData.user.id,
+			});
+		if (acceptError) {
+			return { data: null, error: acceptError.error + acceptError.message };
+		}
+	}
+	
+	if (notifData.notif_type == "event invite") {
+		const { data: acceptData, error: acceptError} = await supabase
+			.from("user-groups")
+			.upsert({
+				group_id: groupId,
+				user_id: addedUser.user_id,
+			});
+		if (acceptError) {
+			return { data: null, error: acceptError.error + acceptError.message };
+		}
+	}
+
 	const { data: notifs, error: notifsError } = await supabase
 		.from("notifs")
 		.update({ read: true, accepted: true })
@@ -435,4 +468,87 @@ export async function rejectNotif(access_token, notif_id) {
 	}
 
 	return { data: notifs, error: null };
+}
+
+export async function sendGroupInviteNotif(access_token, inviter_username, target_username, group_id) {
+	const { data: userData, error: userError } = await getUser(access_token);
+	if (userError != null) {
+		return { data: userData, error: userError };
+	}
+
+	const { data: groupData, error: groupError } = await supabase
+		.from("groups")
+		.select("*")
+		.eq("group_id", group_id)
+		.single();
+
+	if (groupError) {
+		return { error: groupError.code + groupError.message };
+	}
+	console.log("group data retrieved");
+
+	const notif_pic = groupData.icon_url;
+
+	const { data: notifData, error: notifError } = await supabase
+		.from("notifs")
+		.insert({
+			username: target_username,
+			icon_url: notif_pic,
+			notif_type: "group invite",
+			group_id: group_id,
+			inviter_name: inviter_username,
+			group_name: groupData.name,
+		});
+
+	if (notifError) {
+		console.log(notifError)
+		return { data: null, error: notifError };
+	}
+	console.log("success");
+
+	return { data: notifData, error: null };
+}
+
+export async function sendEventInviteNotif(access_token, inviter_username, target_username, event_id) {
+	const { data: userData, error: userError } = await getUser(access_token);
+	if (userError != null) {
+		return { data: userData, error: userError };
+	}
+
+	const { data: eventData, error: eventError } = await supabase
+		.from("events")
+		.select("*")
+		.eq("id", event_id)
+		.single();
+
+	if (eventError) {
+		return { error: eventError.code + eventError.message };
+	}
+
+	const event_name = eventData.title;
+
+	const { data: inviter_data, error: inviterError } = await getUserProfileByUsername(inviter_username);
+	
+	if (inviterError) {
+		return { error: inviterError.code + inviterError.message };
+	}
+
+	const notif_pic = inviter_data.pfp_url;
+
+	const { data: notifData, error: notifError } = await supabase
+		.from("notifs")
+		.insert({
+			username: target_username,
+			icon_url: notif_pic,
+			notif_type: "event invite",
+			event_id: event_id,
+			inviter_name: inviter_username,
+			event_name: event_name,
+		});
+
+	if (notifError) {
+		return { data: null, error: notifError };
+	}
+
+	return { data: notifData, error: null };
 }
