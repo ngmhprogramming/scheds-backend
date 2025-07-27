@@ -215,6 +215,31 @@ app.post("/group/get-members", upload.none(), async (req, res) => {
 	return;
 });
 
+app.post("/group/get-member-events", upload.none(), async (req, res) => {
+	// make sure user is logged in
+	if (!("token" in req.cookies)) {
+		res.send({ error: "User not logged in!" });
+		return;
+	}
+	const access_token = req.cookies.token;
+
+	// validate request parameters
+	if (!("groupId" in req.body)) {
+		res.send({ error: "No group specified!" });
+		return;
+	}
+
+	const group_id = req.body.groupId;
+
+	const { data, error } = await database.getAllEventsOfGroupMembers(access_token, group_id);
+	if (error == null) {
+		res.send({ data: data });
+		return;
+	}
+	res.send({ error: error });
+	return;
+});
+
 app.post("/group/create", upload.none(), async (req, res) => {
 	// make sure user is logged in
 	if (!("token" in req.cookies)) {

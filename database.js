@@ -348,6 +348,49 @@ export async function getMembers(access_token, groupId) {
 	return { data: memberProfileData };
 }
 
+export async function getAllEventsOfGroupMembers(access_token, groupId) {
+	const { data: userData, error: userError } = await getUser(access_token);
+	if (userError != null) {
+		return { data: userData, error: userError };
+	}
+	const user = userData.user;
+
+	// check if user is member of the group
+	const { data: isMember, error: memberCheckError } = await supabase
+		.from("user-groups")
+		.select("user_id", { count: 'exact' })
+		.eq("group_id", groupId)
+		.eq("user_id", user.id);
+	if (isMember == 0) {
+		return { error: "User is not a member of this group." };
+	}
+
+	// retrieve members of a group
+	const { data: memberData, error: memberError } = await supabase
+		.from("user-groups")
+		.select("user_id")
+		.eq("group_id", groupId);
+
+	// retrieve all events associated with each member
+	const memberEventData = (await Promise.all(
+		memberData.map(async member => {
+
+			const memberInfo = await getUserProfile(member.user_id);
+			const username = memberInfo.data.username;
+
+			const memberEvents = await supabase
+				.from("events")
+				.select("*")
+				.eq("user", member.user_id);
+			return memberEvents.data.map(event => ({
+				...event,
+				title: `${username}: ${event.title}`,
+			}));
+		})
+	)).flat();
+	return { data: memberEventData };
+}
+
 export async function updateProfile(access_token, username, full_name, pfp_url, bio) {
 	const { data: userData, error: userError } = await getUser(access_token);
 	if (userError != null) {
