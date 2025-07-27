@@ -133,6 +133,29 @@ app.post("/schedule/create-event", upload.none(), async (req, res) => {
 	return;
 });
 
+app.post("/schedule/create-events", upload.none(), async (req, res) => {
+	// make sure user is logged in
+	if (!("token" in req.cookies)) {
+		res.send({ error: "User not logged in!" });
+		return;
+	}
+
+	// validate request parameters
+	if (!("events" in req.body)) {
+		res.send({ error: "No events specified!" });
+		return;
+	}
+	const access_token = req.cookies.token;
+	const events = JSON.parse(req.body.events);
+	const { data, error } = await database.createEvents(access_token, events);
+	if (error == null) {
+		res.send({ data: "Success" });
+		return;
+	}
+	res.send({ error: error });
+	return;
+});
+
 app.get("/schedule/events", async (req, res) => {
 	// make sure user is logged in
 	if (!("token" in req.cookies)) {
@@ -427,9 +450,9 @@ app.post("/profile/update/profile", upload.none(), async (req, res) => {
 
 	// validate request parameters
 	if (!("username" in req.body) ||
-	    !("full_name" in req.body) ||
+		!("full_name" in req.body) ||
 		!("pfp_url" in req.body) ||
-	    !("bio" in req.body)
+		!("bio" in req.body)
 	) {
 		res.send({ error: "Erroneous form submitted" });
 		return;
@@ -459,7 +482,7 @@ app.post("/profile/update/login", upload.none(), async (req, res) => {
 
 	// validate request parameters
 	if (!("email" in req.body) ||
-	    !("password" in req.body) 
+		!("password" in req.body)
 	) {
 		res.send({ error: "Erroneous form submitted" });
 		return;
