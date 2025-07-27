@@ -489,6 +489,75 @@ app.post("/profile/get", upload.none(), async (req, res) => {
 	return;
 });
 
+app.post("/notif/get", upload.none(), async (req, res) => {
+	// make sure user is logged in
+	if (!("token" in req.cookies)) {
+		res.send({ error: "User not logged in!" });
+		return;
+	}
+
+	const access_token = req.cookies.token;
+
+	if (!("username" in req.body)) {
+		res.send({ error: "No username specified!" });
+		return;
+	}
+
+	const { data, error } = await database.getNotifs(access_token, req.body.username);
+	if (error == null) {
+		res.send({ data: data });
+		return;
+	}
+	res.send({ error: error.code + error.message });
+	return;
+});
+
+app.post("/notif/accept", upload.none(), async (req, res) => {
+	// make sure user is logged in
+	if (!("token" in req.cookies)) {
+		res.send({ error: "User not logged in!" });
+		return;
+	}
+
+	const access_token = req.cookies.token;
+
+	if (!("notif_id" in req.body)) {
+		res.send({ error: "No notif specified!" });
+		return;
+	}
+
+	const { data, error } = await database.acceptNotif(access_token, req.body.notif_id);
+	if (error == null) {
+		res.send({ data: data });
+		return;
+	}
+	res.send({ error: error.code + error.message });
+	return;
+});
+
+app.post("/notif/reject", upload.none(), async (req, res) => {
+	// make sure user is logged in
+	if (!("token" in req.cookies)) {
+		res.send({ error: "User not logged in!" });
+		return;
+	}
+
+	const access_token = req.cookies.token;
+
+	if (!("notif_id" in req.body)) {
+		res.send({ error: "No notif specified!" });
+		return;
+	}
+
+	const { data, error } = await database.rejectNotif(access_token, req.body.notif_id);
+	if (error == null) {
+		res.send({ data: data });
+		return;
+	}
+	res.send({ error: error.code + error.message });
+	return;
+});
+
 app.listen(port, () => {
 	console.log(`Listening on port ${port}`);
 });

@@ -380,3 +380,59 @@ export async function updateLogin(access_token, email, password) {
 
 	return { data: loginData, error: loginError == null ? null : "Error Updating Login: " + loginError.code };
 }
+
+export async function getNotifs(access_token, username) {
+	const { data: userData, error: userError } = await getUser(access_token);
+	if (userError != null) {
+		return { data: userData, error: userError };
+	}
+
+	const { data: notifs, error: notifsError } = await supabase
+		.from("notifs")
+		.select("*")
+		.eq("username", username)
+		.order("timestamp", { ascending: false })
+		.limit(20);
+
+	if (notifsError) {
+		return { data: null, error: notifsError };
+	}
+
+	return { data: notifs, error: null };
+}
+
+export async function acceptNotif(access_token, notif_id) {
+	const { data: userData, error: userError } = await getUser(access_token);
+	if (userError != null) {
+		return { data: userData, error: userError };
+	}
+
+	const { data: notifs, error: notifsError } = await supabase
+		.from("notifs")
+		.update({ read: true, accepted: true })
+		.eq("notif_id", notif_id);
+
+	if (notifsError) {
+		return { data: null, error: notifsError };
+	}
+
+	return { data: notifs, error: null };
+}
+
+export async function rejectNotif(access_token, notif_id) {
+	const { data: userData, error: userError } = await getUser(access_token);
+	if (userError != null) {
+		return { data: userData, error: userError };
+	}
+
+	const { data: notifs, error: notifsError } = await supabase
+		.from("notifs")
+		.update({ read: true, accepted: false })
+		.eq("notif_id", notif_id);
+
+	if (notifsError) {
+		return { data: null, error: notifsError };
+	}
+
+	return { data: notifs, error: null };
+}
