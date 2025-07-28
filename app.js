@@ -301,6 +301,7 @@ app.post("/group/add-member", upload.none(), async (req, res) => {
 		res.send({ error: "User not logged in!" });
 		return;
 	}
+	console.log("sending group invite");
 
 	// validate request parameters
 	if (!("groupId" in req.body)) {
@@ -311,12 +312,18 @@ app.post("/group/add-member", upload.none(), async (req, res) => {
 		res.send({ error: "No username specified!" });
 		return;
 	}
+	if (!("inviter" in req.body)) {
+		res.send({ error: "No inviter specified!" });
+		return;
+	}
+	console.log("inviter", req.body.inviter, "groupId", req.body.groupId, "username", req.body.username);
 
 	const access_token = req.cookies.token;
+	const inviter = req.body.inviter;
 	const group_id = req.body.groupId;
 	const username = req.body.username;
 
-	const { data, error } = await database.addToGroup(access_token, group_id, username);
+	const { data, error } = await database.sendGroupInviteNotif(access_token, inviter, username, group_id);
 	if (error == null) {
 		res.send({ data: "Success" });
 		return;
@@ -534,6 +541,151 @@ app.post("/profile/get", upload.none(), async (req, res) => {
 	}
 
 	res.send(await database.getUserProfile(access_token));
+	return;
+});
+
+app.post("/notif/get", upload.none(), async (req, res) => {
+	// make sure user is logged in
+	if (!("token" in req.cookies)) {
+		res.send({ error: "User not logged in!" });
+		return;
+	}
+
+	const access_token = req.cookies.token;
+
+	if (!("username" in req.body)) {
+		res.send({ error: "No username specified!" });
+		return;
+	}
+
+	const { data, error } = await database.getNotifs(access_token, req.body.username);
+	if (error == null) {
+		res.send({ data: data });
+		return;
+	}
+	res.send({ error: error.code + error.message });
+	return;
+});
+
+app.post("/notif/accept", upload.none(), async (req, res) => {
+	// make sure user is logged in
+	if (!("token" in req.cookies)) {
+		res.send({ error: "User not logged in!" });
+		return;
+	}
+
+	const access_token = req.cookies.token;
+
+	if (!("notif_id" in req.body)) {
+		res.send({ error: "No notif specified!" });
+		return;
+	}
+
+	const { data, error } = await database.acceptNotif(access_token, req.body.notif_id);
+	if (error == null) {
+		res.send({ data: data });
+		return;
+	}
+	res.send({ error: error.code + error.message });
+	return;
+});
+
+app.post("/notif/reject", upload.none(), async (req, res) => {
+	// make sure user is logged in
+	if (!("token" in req.cookies)) {
+		res.send({ error: "User not logged in!" });
+		return;
+	}
+
+	const access_token = req.cookies.token;
+
+	if (!("notif_id" in req.body)) {
+		res.send({ error: "No notif specified!" });
+		return;
+	}
+
+	const { data, error } = await database.rejectNotif(access_token, target_username, notif_type, group_id, event_id, inviter_name, group_name);
+	if (error == null) {
+		res.send({ data: data });
+		return;
+	}
+	res.send({ error: error.code + error.message });
+	return;
+});
+
+app.post("/notif/send/group_invite", upload.none(), async (req, res) => {
+	// make sure user is logged in
+	if (!("token" in req.cookies)) {
+		res.send({ error: "User not logged in!" });
+		return;
+	}
+
+	const access_token = req.cookies.token;
+
+	if (!("inviter_username" in req.body)) {
+		res.send({ error: "No inviter specified!" });
+		return;
+	}
+
+	if (!("target_username" in req.body)) {
+		res.send({ error: "No target specified!" });
+		return;
+	}
+
+	if (!("group_id" in req.body)) {
+		res.send({ error: "No group specified!" });
+		return;
+	}
+
+	if (!("group_name" in req.body)) {
+		res.send({ error: "No group name specified!" });
+		return;
+	}
+
+	const { data, error } = await database.sendGroupInviteNotif(access_token, inviter_username, target_username, group_id, group_name);
+	if (error == null) {
+		res.send({ data: data });
+		return;
+	}
+	res.send({ error: error.code + error.message });
+	return;
+});
+
+app.post("/notif/send/event_invite", upload.none(), async (req, res) => {
+	// make sure user is logged in
+	if (!("token" in req.cookies)) {
+		res.send({ error: "User not logged in!" });
+		return;
+	}
+
+	const access_token = req.cookies.token;
+
+	if (!("target_username" in req.body)) {
+		res.send({ error: "No user specified!" });
+		return;
+	}
+
+	if (!("group_id" in req.body)) {
+		res.send({ error: "No group specified!" });
+		return;
+	}
+
+	if (!("inviter_name" in req.body)) {
+		res.send({ error: "No inviter specified!" });
+		return;
+	}
+
+	if (!("group_name" in req.body)) {
+		res.send({ error: "No group name specified!" });
+		return;
+	}
+
+	const { data, error } = await database.sendGroupInviteNotif(access_token, target_username, "group_invite", group_id, inviter_name, group_name);
+	if (error == null) {
+		res.send({ data: data });
+		return;
+	}
+	res.send({ error: error.code + error.message });
 	return;
 });
 
